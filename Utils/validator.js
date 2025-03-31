@@ -26,7 +26,7 @@ module.exports = {
             )),
         body('username').isAlphanumeric().withMessage('username chi dc chu va so'),
         body('fullName').matches(/^[A-Za-zÀ-ỹ\s]+$/).withMessage('fullname chi duoc chua chu cai'),
-        body('avatarUrl').isURL().withMessage('imgURL phai la URL hop le'),
+        body('avatarUrl').optional().isString().withMessage('imgURL phai la chuoi hop le'),
         body('role').isIn(constants.USER_PERMISSION).withMessage('role khong hop le')
     ],
     validator_middleware: function (req, res, next) {

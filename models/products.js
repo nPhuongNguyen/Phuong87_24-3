@@ -24,7 +24,7 @@ let productSchema = mongoose.Schema({
         type:String,
         default:""
     },
-    categoryID:{
+    category:{
         type:mongoose.Types.ObjectId,
         ref:"category",
         required:true
@@ -32,6 +32,11 @@ let productSchema = mongoose.Schema({
     isDeleted:{
         type:Boolean,
         default:false
+    },
+    sale: {
+        type: mongoose.Types.ObjectId,
+        ref: "sale", // Liên kết đến bảng Sale
+        default: null
     }
 },{
     timestamps:true
