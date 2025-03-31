@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu Đa Cấp</title>
+    <link rel="icon" href="data:;base64,="> <!-- Ngăn lỗi favicon.ico -->
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+    
+        #menuList > li {
+            display: inline-block;
+            vertical-align: top;
+            margin-right: 10px;
+        }
+    
+        li {
+            padding: 10px 15px;
+            cursor: pointer;
+            position: relative;
+            min-width: 180px;
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            margin-bottom: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        li:hover {
+            background: #e0e0e0;
+        }
+    
+        ul ul {
+            display: none;
+            position: absolute;
+            left: 0;
+            top: 100%;
+            background: #f9f9f9;
+            border: 1px solid #ccc;
+            padding: 0;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+
+        /* Menu cấp 2 trở đi sẽ hiển thị bên phải */
+        ul ul ul {
+            left: 100%;
+            top: 0;
+        }
+    
+        /* Khi hover vào thẻ cha, hiển thị danh sách con */
+        li.has-children:hover > ul {
+            display: block;
+        }
+
+        /* Thêm mũi tên cho menu có con */
+        li.has-children::after {
+            content: "▸";
+            position: absolute;
+            right: 10px;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Menu Đa Cấp</h2>
+    <ul id="menuList"></ul>
+
+    <script>
+        async function loadMenu() {
+            try {
+                let response = await fetch('http://localhost:3000/menu');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                let data = await response.json();
+
+                if (data.success) {
+                    let menu = data.data;
+                    let menuList = document.getElementById('menuList');
+                    
+                    // Xây dựng menu đệ quy
+                    function buildMenu(items, parentElement) {
+                        items.forEach(item => {
+                            let li = document.createElement('li');
+                            li.textContent = item.text;
+
+                            // Nếu có con thì thêm class has-children và xây dựng menu con
+                            if (item.children && item.children.length > 0) {
+                                li.classList.add('has-children');
+                                let subUl = document.createElement('ul');
+                                buildMenu(item.children, subUl);
+                                li.appendChild(subUl);
+                            }
+
+                            (parentElement || menuList).appendChild(li);
+                        });
+                    }
+
+                    // Gọi hàm buildMenu với dữ liệu từ API
+                    buildMenu(menu);
+                } else {
+                    console.error('API trả về không thành công:', data.message);
+                }
+            } catch (error) {
+                console.error('Lỗi khi tải menu:', error);
+                // Hiển thị thông báo lỗi cho người dùng
+                document.getElementById('menuList').innerHTML = 
+                    '<li style="color:red">Không thể tải menu. Vui lòng thử lại sau.</li>';
+            }
+        }
+
+        // Tải menu khi trang được load
+        document.addEventListener('DOMContentLoaded', loadMenu);
+    </script>
+</body>
+</html>

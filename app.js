@@ -4,6 +4,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var mongoose = require('mongoose');
+var cors = require('cors');
 
 
 var indexRouter = require('./routes/index');
@@ -15,7 +16,7 @@ mongoose.connect("mongodb://127.0.0.1:27017/BaoCao")
   .then(() => console.log("✅ Kết nối MongoDB thành công"))
   .catch(err => console.error("❌ Lỗi kết nối MongoDB:", err));
 
-
+  app.use(cors());
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
