@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getUser,updateUser } from '../../api/UsersAPI';
+import { getUser, updateUser } from '../../api/UsersAPI';
 
 const UpdateUser = () => {
   const { id } = useParams();
@@ -29,7 +29,7 @@ const UpdateUser = () => {
           fullName: response.data.fullName,
           password: '',
           avatar: null,
-          currentAvatar: response.data.avatar || ''
+          currentAvatar: response.data.avatarUrl || ''
         });
       } catch (error) {
         setStatus(prev => ({
@@ -45,7 +45,20 @@ const UpdateUser = () => {
   }, [id]);
 
   const handleFileChange = (e) => {
-    setUser({...user, avatar: e.target.files[0]});
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      
+      reader.onload = (event) => {
+        setUser({
+          ...user,
+          avatar: file,
+          currentAvatar: event.target.result // Hiển thị preview ảnh mới
+        });
+      };
+      
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleChange = (e) => {
@@ -63,15 +76,19 @@ const UpdateUser = () => {
       if (user.password) formData.append('password', user.password);
       if (user.avatar) formData.append('avatar', user.avatar);
   
-      const result = await updateUser(id, formData);  // Gọi API updateUser
-  
-      setStatus({
-        loading: false,
-        message: 'Cập nhật thành công!',
-        error: ''
-      });
-  
-      setTimeout(() => navigate('/users'), 2000);
+      const response = await updateUser(id, formData);
+        if (response.success) {
+        setStatus({
+            loading: false,
+            message: 'Cập nhật thành công!',
+            error: ''
+        });
+
+        setTimeout(() => navigate('/users'), 2000);
+        } else {
+        throw new Error(response.message || 'Cập nhật không thành công');
+        }
+
     } catch (error) {
       setStatus({
         loading: false,
@@ -80,11 +97,10 @@ const UpdateUser = () => {
       });
     }
   };
-  
 
   return (
-    <div>
-      <h2>Cập nhật người dùng</h2>
+    <div className="container">
+      <h2 className="mb-4">Cập nhật người dùng</h2>
       {status.message && (
         <div className="alert alert-success">{status.message}</div>
       )}
@@ -92,41 +108,77 @@ const UpdateUser = () => {
       {status.error && (
         <div className="alert alert-danger">{status.error}</div>
       )}
+      
       <form onSubmit={handleSubmit}>
-        <div>
-          <label>Email:</label>
+        <div className="mb-3">
+          <label className="form-label">Email:</label>
           <input
             type="email"
             name="email"
+            className="form-control"
             value={user.email}
             onChange={handleChange}
             required
+            disabled={status.loading}
           />
         </div>
-        <div>
-          <label>Họ và tên:</label>
+        
+        <div className="mb-3">
+          <label className="form-label">Họ và tên:</label>
           <input
             type="text"
             name="fullName"
+            className="form-control"
             value={user.fullName}
             onChange={handleChange}
             required
+            disabled={status.loading}
           />
         </div>
-        <div>
-          <label>Mật khẩu:</label>
+        
+        <div className="mb-3">
+          <label className="form-label">Mật khẩu (để trống nếu không đổi):</label>
           <input
             type="password"
             name="password"
+            className="form-control"
             value={user.password}
             onChange={handleChange}
+            disabled={status.loading}
           />
         </div>
-        <div>
-          <label>Avatar:</label>
-          <input type="file" onChange={handleFileChange} />
+        
+        <div className="mb-3">
+          <label className="form-label">Avatar:</label>
+          
+          {/* Hiển thị avatar hiện tại hoặc preview avatar mới */}
+          {user.currentAvatar && (
+            <div className="mb-2">
+              <img 
+                src={user.currentAvatar} 
+                alt="Avatar hiện tại" 
+                className="img-thumbnail" 
+                style={{ maxWidth: '200px' }}
+              />
+            </div>
+          )}
+          
+          <input 
+            type="file" 
+            className="form-control"
+            onChange={handleFileChange}
+            disabled={status.loading}
+            accept="image/*"
+          />
         </div>
-        <button type="submit">Cập nhật</button>
+        
+        <button 
+          type="submit" 
+          className="btn btn-primary"
+          disabled={status.loading}
+        >
+          {status.loading ? 'Đang xử lý...' : 'Cập nhật'}
+        </button>
       </form>
     </div>
   );

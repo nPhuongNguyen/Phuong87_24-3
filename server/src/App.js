@@ -6,6 +6,8 @@ import EditRoleForm from './component/Roles/EditRoleForm';
 import UserList from './component/Users/UserList';
 import AddUserForm from './component/Users/AddUserForm';
 import EditUserForm from './component/Users/EditUserForm';
+import CategoryList from './component/Categories/CategoriesList';
+import EditCategoryForm from './component/Categories/EditCategoryForm';
 
 function App() {
   return (
@@ -21,6 +23,9 @@ function App() {
           <Route path="/users" element={<UserList />} />
           <Route path="/add-user" element={<AddUserForm />} />
           <Route path="/edit-user/:id" element={<EditUserForm />} />
+            {/* Categories routes */}
+            <Route path="/categories" element={<CategoryList />} />
+            <Route path="/categories/:id" element={<EditCategoryForm />} />
         </Routes>
       </div>
     </Router>

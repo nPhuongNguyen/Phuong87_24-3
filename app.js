@@ -4,7 +4,6 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var mongoose = require('mongoose');
-var cors = require('cors');
 var ejsLayouts = require('express-ejs-layouts');
 
 var indexRouter = require('./routes/index');
@@ -21,12 +20,13 @@ var menuRouter = require('./routes/menu');
 
 var app = express();
 app.use(express.json());
+const cors = require('cors');
 
-// Cấu hình CORS chỉ với origin và credentials
 app.use(cors({
-  origin: 'http://localhost:3001', // Cho phép React app gọi
-  credentials: true                // Cho phép gửi cookies, FormData, v.v
+  origin: ['http://localhost:5000', 'http://localhost:6001'],  
+  credentials: true                                           
 }));
+
 
 // Kết nối MongoDB
 mongoose.connect("mongodb://127.0.0.1:27017/BaoCao")
