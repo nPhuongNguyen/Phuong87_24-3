@@ -14,10 +14,25 @@ let { check_authentication,
   let FormData = require('form-data');
   let fs = require('fs');
   const { header } = require('express-validator');
-router.get('/', async function(req, res, next) {
-  let queries = req.query;
-  let products = await productSchema.find(BuildQueies.QueryProduct(queries)).populate("categoryID");
-  res.send(products);
+// routes/products.js
+router.get('/', async (req, res, next) => {
+  try {
+    let queries = req.query;
+    let products = await productSchema.find({}).populate("category");
+    
+    // Trả về JSON chuẩn với status 200
+    res.status(200).json({
+      success: true,
+      data: products,
+      message: "Lấy danh sách sản phẩm thành công"
+    });
+  } catch (error) {
+    // Xử lý lỗi
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
 });
 router.get('/:id', async function(req, res, next) {
   try {

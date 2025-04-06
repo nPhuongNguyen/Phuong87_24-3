@@ -17,12 +17,28 @@ const { header } = require('express-validator');
 
 
 router.get('/', async function (req, res, next) {
-  let queries = req.query;
-  let users = await userSchema.find(BuildQueries.QueryUser(queries)).populate('role');
-  res.send(users);
+  try {
+    const queries = req.query;
+    const filter = BuildQueries.QueryUser(queries); 
+
+    const users = await userSchema.find(filter).populate('role');
+
+    res.status(200).json({
+      success: true,
+      data: users
+    });
+  } catch (error) {
+    console.error('Lỗi khi lấy danh sách người dùng:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Lỗi máy chủ khi lấy danh sách người dùng'
+    });
+  }
 });
 
-router.get('/:id', check_authentication, async function (req, res, next) {
+router.get('/:id'
+  , check_authentication
+  , async function (req, res, next) {
   try {
     if (req.user._id == req.params.id) {
       let user = await userSchema.findById(req.params.id).populate('role');
@@ -37,6 +53,22 @@ router.get('/:id', check_authentication, async function (req, res, next) {
     next(error)
   }
 });
+
+router.get('/users/:id', async function(req, res, next) {
+  try {
+    let user = await userSchema.findById(req.params.id);
+    res.status(200).send({
+      success: true,
+      data: user
+    });
+  } catch (error) {
+    res.status(404).send({
+      success: fail,
+      message: error.message
+    });
+  }
+});
+
 let avatarDir = path.join(__dirname, '../avatars')
   let storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, avatarDir),
@@ -57,8 +89,8 @@ let avatarDir = path.join(__dirname, '../avatars')
     }
   });
 router.post('/',
-  check_authentication,
-  check_authorization(constants.MOD_PERMISSION),
+  // check_authentication,
+  // check_authorization(constants.MOD_PERMISSION),
   upload.single('avatar'),
   validators, validator_middleware,
   async function (req, res, next) {
@@ -108,8 +140,8 @@ router.post('/',
 
   router.put(
     "/:id",
-    check_authentication,
-    check_authorization(constants.MOD_PERMISSION),
+    // check_authentication,
+    // check_authorization(constants.MOD_PERMISSION),
     upload.single("avatar"),
     async function (req, res, next) {
       try {
@@ -169,6 +201,7 @@ router.post('/',
       }
     }
   );
+  
   
   router.post('/change_avatar', check_authentication, upload.single('avatar'), async function (req, res, next) {
     if (!req.file) {
