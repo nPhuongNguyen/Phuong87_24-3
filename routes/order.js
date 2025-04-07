@@ -26,9 +26,9 @@ router.post('/my-orders', check_authentication, async (req, res, next) => {
     try {
         const userId = req.user.id; 
         console.log(userId);
-        const {ShippingAddress, Note, Trangthai, Sdt } = req.body;
+        const {ShippingAddress, Note, Sdt } = req.body;
 
-        if (!ShippingAddress || !Trangthai || !Sdt) {
+        if (!ShippingAddress || !Sdt) {
             return res.status(400).json({ message: 'Vui lòng điền đầy đủ thông tin đơn hàng!' });
         }
         const cartItems = await cartItemSchema.find({ UserId: userId });
@@ -53,7 +53,7 @@ router.post('/my-orders', check_authentication, async (req, res, next) => {
             TotalPrice:totalPrice ,
             ShippingAddress,
             Note: Note || "",
-            Trangthai,
+            Trangthai: "Chờ xác nhận",
             Sdt
         });
 
@@ -86,6 +86,24 @@ router.post('/my-orders', check_authentication, async (req, res, next) => {
     }
 });
 
+// Thêm vào routes/order.js
+router.get('/:id', check_authentication, async (req, res) => {
+    try {
+      const order = await orderSchema.findById(req.params.id);
+      if (!order) {
+        return res.status(404).json({ message: 'Không tìm thấy đơn hàng' });
+      }
+  
+      const orderDetails = await orderDetailSchema.find({ OrderId: order._id }).populate('ProductId');
+      
+      res.status(200).json({
+        order,
+        items: orderDetails
+      });
+    } catch (error) {
+      res.status(500).json({ message: 'Lỗi server', error });
+    }
+  });
 
 
     

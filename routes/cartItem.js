@@ -9,7 +9,7 @@ let { check_authentication,
 router.get('/cartitems', check_authentication, async (req, res, next) => {
     try {
         const userId = req.user.id;
-        const cartitem = await cartItemSchema.find({ UserId: userId });
+        const cartitem = await cartItemSchema.find({ UserId: userId }).populate('ProductId');
         if (!cartitem || cartitem.length === 0) {
             return res.status(404).json({ message: 'Không tìm thấy sp nào' });
         }

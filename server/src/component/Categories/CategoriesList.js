@@ -50,7 +50,11 @@ const CategoryList = () => {
     <Container className="mt-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2>Danh sách danh mục</h2>
-        <Button variant="primary">Thêm danh mục</Button>
+        <Link to={`/add-categories`}>
+              <Button variant="warning" size="sm" className="me-2">
+                  <FaEdit /> Thêm danh mục
+              </Button>
+         </Link>
       </div>
 
       <Table striped bordered hover responsive>

@@ -9,6 +9,9 @@ module.exports = {
     getUserById: async function(id){
         return await userSchema.findById(id).populate("role");
     },
+    getUserByEmail: async (email) => {
+        return await userSchema.findOne({ email });
+    },
     createUser:async function(username,password,email,fullName,avatarUrl,role){
         let roleCheck = await roleSchema.findOne({roleName:role});
         if(roleCheck){

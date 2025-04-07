@@ -8,6 +8,10 @@ import AddUserForm from './component/Users/AddUserForm';
 import EditUserForm from './component/Users/EditUserForm';
 import CategoryList from './component/Categories/CategoriesList';
 import EditCategoryForm from './component/Categories/EditCategoryForm';
+import AddCategoriesForm from './component/Categories/AddCategoriesForm';
+import ProductsList from './component/Products/ProductList';
+import AddProduct from './component/Products/AddProduct';
+import EditProduct from './component/Products/EditProduct';
 
 function App() {
   return (
@@ -26,6 +30,11 @@ function App() {
             {/* Categories routes */}
             <Route path="/categories" element={<CategoryList />} />
             <Route path="/categories/:id" element={<EditCategoryForm />} />
+            <Route path="/add-categories" element={<AddCategoriesForm />} />
+            {/* Products routes */}
+            <Route path="/products" element={<ProductsList />} />
+            <Route path="/add-product" element={<AddProduct />} />
+            <Route path="/edit-product/:id" element={<EditProduct />} />
         </Routes>
       </div>
     </Router>

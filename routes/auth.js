@@ -3,24 +3,35 @@ var router = express.Router();
 let userController = require('../controllers/users');
 const { check_authentication } = require('../Utils/check_auth');
 
-router.post('/signup', async function(req, res, next) {
-    try {
-        let body = req.body;
-        let result = await userController.createUser(
-          body.username,
-          body.password,
-          body.email,
-         'User'
-        )
-        res.status(200).send({
-          success:true,
-          data:result
-        })
-      } catch (error) {
-        next(error);
-      }
+const crypto = require('crypto');
 
+router.get('/check-auth', check_authentication, (req, res) => {
+  res.status(200).send({
+    success: true,
+    user: req.user
+  });
+});
+router.post('/signup', async function(req, res, next) {
+  try {
+      let body = req.body;
+      let result = await userController.createUser(
+        body.username,
+        body.password,
+        body.email,
+        body.fullName,
+        body.avatarUrl||'',
+       'User'
+      )
+      res.status(200).send({
+        success:true,
+        data:result
+      })
+    } catch (error) {
+      console.error("🔥 Lỗi: ", error.message);
+      res.status(500).send({ success: false, message: error.message || "Đã xảy ra lỗi trên server" });
+    }
 })
+
 router.post('/login', async function(req, res, next) {
     try {
         let username = req.body.username;

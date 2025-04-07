@@ -17,7 +17,6 @@ let { check_authentication,
 // routes/products.js
 router.get('/', async (req, res, next) => {
   try {
-    let queries = req.query;
     let products = await productSchema.find({}).populate("category");
     
     // Trả về JSON chuẩn với status 200
@@ -36,7 +35,7 @@ router.get('/', async (req, res, next) => {
 });
 router.get('/:id', async function(req, res, next) {
   try {
-    let product = await productSchema.findById(req.params.id);
+    let product = await productSchema.findById(req.params.id).populate("category");
     res.status(200).send({
       success:true,
       data:product
@@ -71,8 +70,8 @@ let storage = multer.diskStorage({
   });
 
 router.post('/',
-  check_authentication,
-  check_authorization(constants.MOD_PERMISSION),
+  // check_authentication,
+  // check_authorization(constants.MOD_PERMISSION),
   upload.single('avatar'),
   async function (req, res, next) {
     try {
@@ -126,8 +125,8 @@ router.post('/',
     
   });
   router.put('/:id',
-    check_authentication,
-    check_authorization(constants.MOD_PERMISSION),
+    // check_authentication,
+    // check_authorization(constants.MOD_PERMISSION),
     upload.single('avatar'),
     async function(req, res, next) {
       try {
@@ -141,7 +140,7 @@ router.post('/',
         }
   
         // Danh sách các trường được cập nhật
-        let allowFields = ["productName", "price","quantity", "description", "category"];
+        let allowFields = ["productName", "price","quantity", "description", "category","sale"];
         for (const key of Object.keys(body)) {
           if (allowFields.includes(key)) {
             product[key] = body[key];
@@ -193,11 +192,10 @@ router.post('/',
   );
 
   router.delete('/:id', 
-    check_authentication,
-    check_authorization(constants.MOD_PERMISSION),
+    // check_authentication,
+    // check_authorization(constants.MOD_PERMISSION),
     async function(req, res, next) {
       try{
-        let body = req.body;
         let product = await productSchema.findById(req.params.id);
         if (!product) {
           return res.status(404).send({

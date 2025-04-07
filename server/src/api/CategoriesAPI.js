@@ -31,3 +31,14 @@ export const getCategoryById = async (id) => {
       throw error.response?.data || error;
     }
   };
+
+  export const createCategory = async (categoryData) => {
+    try {
+      const response = await axios.post(`${API_URL}/categories`, categoryData, {
+        withCredentials: true,
+      });
+      return response.data;
+    } catch (error) {
+      throw error.response ? error.response.data : error;
+    }
+  };

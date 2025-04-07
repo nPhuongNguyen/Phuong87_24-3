@@ -1,109 +1,100 @@
 import React, { useEffect, useState } from 'react';
 import { getProducts } from '../api/productAPI';
 import { Link } from 'react-router-dom';
-// Đảm bảo import Bootstrap 5 trong file App.js hoặc index.js
- import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min';
 
 const ProductList = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  
+
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchData = async () => {
       try {
-        const result = await getProducts();
-        if (result.success) {
-          setProducts(result.data);
+        const productRes = await getProducts(); // Gọi API để lấy sản phẩm
+        if (productRes.success) {
+          setProducts(productRes.data);
+        } else {
+          setError('Không thể tải sản phẩm');
         }
       } catch (err) {
-        setError(err.message);
+        setError('Lỗi khi tải dữ liệu sản phẩm');
       } finally {
         setLoading(false);
       }
     };
-    
-    fetchProducts();
+
+    fetchData();
   }, []);
-  
-  // Lọc sản phẩm theo từ khóa tìm kiếm
-  const filteredProducts = products.filter(product => 
-    product.productName.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-  
+
   if (loading) return (
-    <div className="d-flex flex-column align-items-center justify-content-center py-5">
+    <div className="d-flex flex-column align-items-center justify-content-center py-5 min-vh-50">
       <div className="spinner-border text-primary mb-3" role="status">
         <span className="visually-hidden">Đang tải...</span>
       </div>
-      <p>Đang tải dữ liệu...</p>
+      <p className="text-primary fw-bold">Đang tải dữ liệu sản phẩm...</p>
     </div>
   );
-  
+
   if (error) return (
-    <div className="text-center p-4 bg-light border rounded">
-      <div className="d-flex align-items-center justify-content-center bg-danger text-white rounded-circle mx-auto mb-3" style={{width: "50px", height: "50px"}}>!</div>
-      <p className="text-danger">Đã xảy ra lỗi: {error}</p>
-      <button className="btn btn-danger" onClick={() => window.location.reload()}>Thử lại</button>
+    <div className="text-center p-5 bg-light border rounded shadow">
+      <div className="bg-danger text-white rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style={{ width: "60px", height: "60px" }}>
+        <span className="fw-bold fs-4">!</span>
+      </div>
+      <h4 className="text-danger mb-3">Đã xảy ra lỗi</h4>
+      <p className="text-secondary mb-4">{error}</p>
+      <button className="btn btn-danger px-4 py-2" onClick={() => window.location.reload()}>
+        Thử lại
+      </button>
     </div>
   );
-  
+
   return (
-    <div className="container py-4">
-      <h2 className="text-center mb-4 position-relative">
-        Danh sách sản phẩm
-        <div className="border-bottom border-3 border-primary mx-auto mt-2" style={{width: "60px"}}></div>
-      </h2>
-      
-      <div className="mb-4">
-        <input
-          type="text"
-          className="form-control rounded-pill"
-          placeholder="Tìm kiếm sản phẩm..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div>
-      
-      {filteredProducts.length === 0 ? (
-        <div className="text-center p-4 bg-light rounded">
-          <p className="text-muted">Không tìm thấy sản phẩm nào</p>
-        </div>
-      ) : (
+    <div className="container-fluid min-vh-100">
+      <div className="container py-5">
         <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
-          {filteredProducts.map(product => (
+          {products.map(product => (
             <div key={product._id} className="col">
-              <div className="card h-100 shadow-sm">
+              <div className="card h-100 border-0 shadow-sm hover-shadow transition-all">
                 {product.imgURL && (
-                  <div className="overflow-hidden">
-                    <img 
-                      src={product.imgURL} 
-                      alt={product.productName} 
-                      className="card-img-top"
-                      style={{height: "200px", objectFit: "cover", transition: "transform 0.5s ease"}}
-                      onMouseOver={(e) => e.target.style.transform = "scale(1.05)"}
-                      onMouseOut={(e) => e.target.style.transform = "scale(1)"}
+                  <div className="card-img-top position-relative overflow-hidden" style={{ height: "220px" }}>
+                    <img
+                      src={product.imgURL}
+                      alt={product.productName}
+                      className="w-100 h-100"
+                      style={{ objectFit: "cover", transition: "transform 0.5s" }}
+                      onMouseOver={(e) => e.currentTarget.style.transform = "scale(1.05)"}
+                      onMouseOut={(e) => e.currentTarget.style.transform = "scale(1)"}
                     />
+                    <div className="position-absolute top-0 end-0 m-2">
+                      <button className="btn btn-sm btn-light rounded-circle shadow-sm">
+                        <i className="bi bi-heart"></i>
+                      </button>
+                    </div>
                   </div>
                 )}
-                <div className="card-body">
-                  <h5 className="card-title">{product.productName}</h5>
+                <div className="card-body d-flex flex-column">
+                  <h5 className="card-title text-truncate">{product.productName}</h5>
                   {product.price && (
-                    <p className="card-text text-primary fw-bold">{product.price.toLocaleString('vi-VN')} đ</p>
+                    <p className="card-text fw-bold text-primary mb-2">{product.price.toLocaleString('vi-VN')} đ</p>
                   )}
                   {product.description && (
-                    <p className="card-text text-muted text-truncate">{product.description}</p>
+                    <p className="card-text text-muted small mb-3 overflow-hidden" style={{ height: "40px" }}>
+                      {product.description}
+                    </p>
                   )}
-                  <Link to={`/product/${product._id}`} className="btn btn-primary w-100">
-                    Xem chi tiết
-                  </Link>
+                  <div className="mt-auto d-flex gap-2">
+                    <Link to={`/product/${product._id}`} className="btn btn-primary flex-grow-1">
+                      Xem chi tiết
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
           ))}
         </div>
-      )}
+      </div>
     </div>
   );
 };

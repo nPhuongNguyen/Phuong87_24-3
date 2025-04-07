@@ -3,6 +3,25 @@ var express = require('express');
 var router = express.Router();
 let saleSchema = require('../models/Sale');
 
+
+router.get('/', async (req, res, next) => {
+  try {
+    let sales = await saleSchema.find({});
+    
+    // Trả về JSON chuẩn với status 200
+    res.status(200).json({
+      success: true,
+      data: sales,
+      message: "Lấy danh sách sale thành công"
+    });
+  } catch (error) {
+    // Xử lý lỗi
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
 router.get('/:id', async function(req, res, next) {
   try {
     let sale = await saleSchema.findById(req.params.id);

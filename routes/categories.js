@@ -40,7 +40,7 @@ router.post('/',
   async function (req, res, next) {
     try {
       let body = req.body;
-      let result = await categorySchema.createCategories(
+      let result = await categoriesController.createCategories(
         body.categoryName,
         body.description,
       )
@@ -53,6 +53,8 @@ router.post('/',
     }
 
   });
+
+
 router.put('/:id', async function(req, res, next) {
   try {
     let body = req.body;
